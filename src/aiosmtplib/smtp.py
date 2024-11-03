@@ -465,7 +465,7 @@ class SMTP:
 
         tls_context: Optional[ssl.SSLContext] = None
         ssl_handshake_timeout: Optional[float] = None
-                if self.use_tls:
+        if self.use_tls:
             tls_context = self._get_tls_context()
             ssl_handshake_timeout = timeout
             srvHostnameKwarg = {'server_hostname': self.local_hostname}
