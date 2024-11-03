@@ -465,16 +465,20 @@ class SMTP:
 
         tls_context: Optional[ssl.SSLContext] = None
         ssl_handshake_timeout: Optional[float] = None
-        if self.use_tls:
+                if self.use_tls:
             tls_context = self._get_tls_context()
             ssl_handshake_timeout = timeout
+            srvHostnameKwarg = {'server_hostname': self.local_hostname}
+        else:
+            srvHostnameKwarg = {'server_hostname': None}
 
-        if self.sock is not None:
+        if self.sock is not None:  # If we have a socket, do a create_connection on it
             connect_coro = self.loop.create_connection(
                 lambda: protocol,
                 sock=self.sock,
                 ssl=tls_context,
                 ssl_handshake_timeout=ssl_handshake_timeout,
+                **srvHostnameKwarg
             )
         elif self.socket_path is not None:
             connect_coro = self.loop.create_unix_connection(
@@ -482,6 +486,7 @@ class SMTP:
                 path=self.socket_path,  # type: ignore
                 ssl=tls_context,
                 ssl_handshake_timeout=ssl_handshake_timeout,
+                **srvHostnameKwarg
             )
         else:
             if self.hostname is None:
@@ -496,6 +501,7 @@ class SMTP:
                 ssl=tls_context,
                 ssl_handshake_timeout=ssl_handshake_timeout,
                 local_addr=self.source_address,
+                **srvHostnameKwarg
             )
 
         try:
